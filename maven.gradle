@@ -1,0 +1,47 @@
+apply plugin: "maven"
+
+
+
+task sourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier = 'sources'
+}
+
+task javadoc(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives javadocJar
+    archives sourcesJar
+}
+
+/**
+ * 加载配置文件
+ * jiangjiawen
+ * @return
+ */
+uploadArchives {
+    repositories {
+        mavenDeployer {
+
+            repository(url: nexusRepositoryUrl) {
+                authentication(userName: username, password: pwd)
+            }
+            pom.project {
+                artifactId name
+                version versionName
+                groupId "com.bkjk"
+                packaging 'aar'
+                description 'dependences lib'
+            }
+        }
+    }
+}
+

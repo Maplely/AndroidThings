@@ -1,0 +1,19 @@
+task makeJar(type: Jar) {
+    group "111"
+    //删除存在的
+    delete 'build/libs/mysdk.jar'
+    //设置拷贝的文件 目标文件
+    from('build/intermediates/jniLibs/release/')
+    //打进jar包后的文件目录
+    into('build/libs/')
+    //将classes.jar放入build/libs/目录下
+    //include ,exclude参数来设置过滤
+    include('android/',  'BuildConfig.class', 'R.class')
+    exclude{
+           it.name.startsWith('R$');
+    }
+    //（我们只关心classes.jar这个文件）
+    //重命名
+    rename ('classes.jar', 'mysdk.jar')
+}
+makeJar.dependsOn build
