@@ -1,2 +1,2 @@
 # gitIgnore
-gitIgnore
+gradle 脚本
