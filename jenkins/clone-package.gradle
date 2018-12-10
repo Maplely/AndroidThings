@@ -1,0 +1,84 @@
+/**
+ * clone工程upload至maven
+ * jiangjiawen
+ * 2018/1/18
+ */
+Properties getProperties() {
+    //读取配置文件
+    String separator = System.getProperty("file.separator")
+    Properties config = new Properties()
+    File projectProperties = new File(rootDir.getAbsolutePath() + separator + "project.properties")
+    config.load(projectProperties.newDataInputStream())
+    return config
+}
+
+def getAppModules(String branch, String server_host) {
+    println("---------------------开始上传maven-------------------")
+    String[] libList = gradle.registLib.split(",")
+    String[] moduleList = gradle.registModule.split(",")
+    ArrayList<String> dependenceProject = Arrays.asList(libList)
+    dependenceProject.addAll(Arrays.asList(moduleList))
+    Properties config
+    if (dependenceProject.size() > 0) {
+        config = getProperties()
+    }
+    for (String libName : dependenceProject) {
+        String propertiesValue = config.get(libName)
+        String projectGit = propertiesValue.split("\\+")[0]
+        String projectName = propertiesValue.split("\\+")[1]
+        execShell(libName, projectName, projectGit, branch, server_host)
+    }
+}
+
+
+def execShell(String libName, String projectName, String projectGit, String branch, String host) {
+    String shellPath = rootProject.getProjectDir().absolutePath + "/jenkins-package.sh"//shell脚本文本路径
+    String chmodcmd = "chmod 777 " + shellPath //为执行脚本赋权限
+    Runtime.getRuntime().exec(chmodcmd)
+    String agr1 = libName
+    String agr2 = null
+    if (libName.startsWith("lib") || libName.startsWith("bkjf")) {
+        agr2 = "dev"
+    } else {
+        def name = branch
+        if (name.startsWith("origin")) {
+            name = name.split("/")[1]
+        }
+        agr2 = name
+    }
+    String agr3 = projectGit
+    String agr4 = projectName
+    String arg5 = rootProject.getProjectDir().absolutePath
+    String arg6 = null
+    if(host.equals("production")){
+        arg6="1"
+    }else{
+        arg6="3"
+    }
+    shellPath = shellPath + " " + agr1 + " " + agr2 + " " + agr3 + " " + agr4 + " " + arg5 + " " + arg6
+    println("----exec shell----" + shellPath)
+    Process process = Runtime.getRuntime().exec(shellPath)
+    def result = process.waitFor()
+    if (result == 0) {
+        println(projectName + "上传maven成功！！！")
+    } else {
+        println(projectName + "上传maven失败！！！,错误信息：")
+    }
+    BufferedReader br = new BufferedReader(new InputStreamReader(process.getErrorStream()))
+    String str = null
+    while ((str = br.readLine()) != null) {
+        System.out.println(str)
+    }
+    br.close()
+}
+
+task cloneAndUploadArchives() {
+    getAppModules(project.BRANCH, project.SERVER_HOST)
+}
+afterEvaluate {
+    tasks.matching {
+        it.name.contains('clean')
+    }.each { tk ->
+        cloneAndUploadArchives.dependsOn(tk)
+    }
+}
