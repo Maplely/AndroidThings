@@ -1,0 +1,60 @@
+#!/bin/bash
+#modify those veriable based on your env
+#===========================
+NDK=/Users/bkjk/ndk/android-ndk-r16b
+#32 or 64
+archbit=64
+
+#===========================
+if [ $archbit -eq 32 ];then
+echo "build for 32bit"
+#32bit
+abi='armeabi'
+cpu='arm'
+arch='arm'
+android='androideabi'
+else
+#64bit
+echo "build for 64bit"
+abi='arm64-v8a'
+cpu='aarch64'
+arch='arm64'
+android='android'
+fi
+
+SYSROOT=$NDK/platforms/android-24/arch-$arch/
+TOOLCHAIN=$NDK/toolchains/$cpu-linux-$android-4.9/prebuilt/linux-x86_64
+
+
+PREFIX=$(pwd)/android/$cpu
+#ADDI_CFLAGS="-marm"
+
+function build_one
+{
+    ./configure \
+    --prefix=$PREFIX \
+    --enable-shared \
+    --disable-static \
+    --disable-doc \
+    --disable-ffmpeg \
+    --disable-ffplay \
+    --disable-ffprobe \
+    --disable-ffserver \
+    --disable-avdevice \
+    --disable-doc \
+    --disable-symver \
+    --enable-yasm \
+    --cross-prefix=$TOOLCHAIN/bin/$cpu-linux-$android- \
+    --target-os=linux \
+    --arch=$cpu \
+    --enable-cross-compile \
+    --sysroot=$SYSROOT \
+    --extra-cflags="-Os -fpic -DANDROID" \
+    --extra-ldflags="$ADDI_LDFLAGS" \
+    $ADDITIONAL_CONFIGURE_FLAG
+    make clean
+    make
+    make install
+}
+
+build_one
