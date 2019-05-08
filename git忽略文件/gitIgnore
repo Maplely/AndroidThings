@@ -23,6 +23,7 @@ build/
 gradle/
 gradlew
 gradlew.bat
+*/.externalNativeBuild/
 
 # Local configuration file (sdk path, etc)
 local.properties
@@ -55,4 +56,3 @@ captures/
 
 # Windows thumbnail db
 Thumbs.db
-
