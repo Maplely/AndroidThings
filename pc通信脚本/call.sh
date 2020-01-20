@@ -8,11 +8,11 @@ function isSuc(){
 #安装app
 function installApp(){
   echo "-------即将安装app---------"
-  if [ ! -f "clipper.apk" ];then
+  if [ ! -f "/Users/lihaitao/Documents/pc通信脚本/clipper.apk" ];then
     echo "clipper.apk 不存在 请先检查统计目录是否存在clipper.apk"
     exit 1
   fi
-  adb  install -r ./clipper.apk
+  adb  install -r "/Users/lihaitao/Documents/pc通信脚本/clipper.apk"
   isSuc "安装apk失败"
   echo "-------安装完成---------"
 }
@@ -33,6 +33,13 @@ function isAppRunning(){
     return $tem
   }
   #main入口
+  echo "##########################################################"
+  echo "## 1. 脚本执行时传入参数为pc--->>>android传输数据       ##"
+  echo "## 2. 脚本执行时不传参数为android--->>>pc传输数据       ##"
+  echo "## 3. 当android-->>>pc传输数据时，将内容复制好，        ##"
+  echo "##    并将Clipper.apk打开置于前台 ##"
+  echo "## 4. 第一次调用脚本时，call 任意数据，则会自动安装apk  ##"
+  echo "##########################################################"
   CML_INSTALLED=`adb shell pm list packages | grep ca.zgrs.clipper`
   if [ -n "$CML_INSTALLED" ];then
     echo "已安装app"
