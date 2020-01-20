@@ -8,11 +8,11 @@ function isSuc(){
 #安装app
 function installApp(){
   echo "-------即将安装app---------"
-  if [ ! -f "/Users/lihaitao/Documents/pc通信脚本/clipper.apk" ];then
+  if [ ! -f "./clipper.apk" ];then
     echo "clipper.apk 不存在 请先检查统计目录是否存在clipper.apk"
     exit 1
   fi
-  adb  install -r "/Users/lihaitao/Documents/pc通信脚本/clipper.apk"
+  adb  install -r "./clipper.apk"
   isSuc "安装apk失败"
   echo "-------安装完成---------"
 }
